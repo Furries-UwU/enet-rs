@@ -1,0 +1,3 @@
+[submodule "enet-sys"]
+	path = enet-sys
+	url = https://github.com/Furries-UwU/enet-sys
