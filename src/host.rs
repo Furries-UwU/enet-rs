@@ -27,7 +27,7 @@ pub enum ChannelLimit {
 }
 
 impl ChannelLimit {
-    pub(in crate) fn to_enet_val(self) -> enet_sys::size_t {
+    pub(crate) fn to_enet_val(self) -> enet_sys::size_t {
         match self {
             ChannelLimit::Maximum => 0,
             ChannelLimit::Limited(l) => l,
@@ -45,7 +45,7 @@ impl ChannelLimit {
 }
 
 impl BandwidthLimit {
-    pub(in crate) fn to_enet_u32(self) -> u32 {
+    pub(crate) fn to_enet_u32(self) -> u32 {
         match self {
             BandwidthLimit::Unlimited => 0,
             BandwidthLimit::Limited(l) => l,
@@ -58,6 +58,7 @@ impl BandwidthLimit {
 ///
 /// This type provides functionality such as connection establishment and packet
 /// transmission.
+#[derive(Debug)]
 pub struct Host<T> {
     inner: *mut ENetHost,
     _keep_alive: Arc<EnetKeepAlive>,
@@ -146,6 +147,19 @@ impl<T> Host<T> {
         Some(peer)
     }
 
+    pub fn peer_mut_this_will_go_horribly_wrong_lmao(&self, idx: PeerID) -> Option<&mut Peer<T>> {
+        if !(0..self.peer_count() as isize).contains(&idx.index) {
+            return None;
+        }
+
+        let peer = Peer::new_mut(unsafe { &mut *((*self.inner).peers.offset(idx.index)) });
+        if peer.generation() != idx.generation {
+            return None;
+        }
+
+        Some(peer)
+    }
+
     /// Returns a reference to a peer at the given PeerID, None if the index is invalid.
     pub fn peer(&self, idx: PeerID) -> Option<&Peer<T>> {
         if !(0..self.peer_count() as isize).contains(&idx.index) {
@@ -173,6 +187,23 @@ impl<T> Host<T> {
 
     /// Returns an iterator over all peers connected to this `Host`.
     pub fn peers_mut(&mut self) -> impl Iterator<Item = &'_ mut Peer<T>> {
+        let peers = unsafe {
+            std::slice::from_raw_parts_mut(
+                (*self.inner).peers,
+                // This conversion should basically never fail.
+                // It may only fail if size_t and usize are of
+                // different size and the peerCount is very large,
+                // which is only possible on niche platforms.
+                (*self.inner).peerCount.try_into().unwrap(),
+            )
+        };
+
+        peers.iter_mut().map(|peer| Peer::new_mut(&mut *peer))
+    }
+
+    pub fn peers_mut_this_will_go_horribly_wrong_lmao(
+        &self,
+    ) -> impl Iterator<Item = &'_ mut Peer<T>> {
         let peers = unsafe {
             std::slice::from_raw_parts_mut(
                 (*self.inner).peers,

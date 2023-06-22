@@ -20,6 +20,7 @@ pub struct Event<'a, T> {
     peer: &'a mut Peer<T>,
     peer_id: PeerID,
     kind: EventKind,
+    pub host: &'a Host<T>,
 }
 
 /// The type of an event.
@@ -67,6 +68,7 @@ impl<'a, T> Event<'a, T> {
             peer,
             peer_id,
             kind,
+            host,
         })
     }
 
