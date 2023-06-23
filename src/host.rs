@@ -147,6 +147,7 @@ impl<T> Host<T> {
         Some(peer)
     }
 
+    /// This is the same as `peer_mut` but doesn't require a mutable reference to the host. Not sure if this is safe, but it works :3
     pub fn peer_mut_this_will_go_horribly_wrong_lmao(&self, idx: PeerID) -> Option<&mut Peer<T>> {
         if !(0..self.peer_count() as isize).contains(&idx.index) {
             return None;
@@ -201,6 +202,7 @@ impl<T> Host<T> {
         peers.iter_mut().map(|peer| Peer::new_mut(&mut *peer))
     }
 
+    /// This is the same as peers_mut but doesn't require a mutable reference to the host. Not sure if this is safe, but it works :3
     pub fn peers_mut_this_will_go_horribly_wrong_lmao(
         &self,
     ) -> impl Iterator<Item = &'_ mut Peer<T>> {

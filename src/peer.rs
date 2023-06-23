@@ -283,7 +283,9 @@ where
 /// When connecting to a host, both a reference to the peer, and its ID are returned.
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub struct PeerID {
+    /// The index of the peer in the host's peer list.
     pub index: isize,
+    /// The generation of the peer. This appears to increment every time a new peer connects.
     pub generation: usize,
 }
 

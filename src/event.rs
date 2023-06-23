@@ -20,6 +20,7 @@ pub struct Event<'a, T> {
     peer: &'a mut Peer<T>,
     peer_id: PeerID,
     kind: EventKind,
+    /// reference to the host that this event was received on
     pub host: &'a Host<T>,
 }
 
