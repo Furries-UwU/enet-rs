@@ -66,7 +66,7 @@ pub struct Host<T> {
 }
 
 impl<T> Host<T> {
-    pub(in crate) fn new(_keep_alive: Arc<EnetKeepAlive>, inner: *mut ENetHost) -> Host<T> {
+    pub(crate) fn new(_keep_alive: Arc<EnetKeepAlive>, inner: *mut ENetHost) -> Host<T> {
         assert!(!inner.is_null());
 
         Host {
@@ -188,16 +188,8 @@ impl<T> Host<T> {
 
     /// Returns an iterator over all peers connected to this `Host`.
     pub fn peers_mut(&mut self) -> impl Iterator<Item = &'_ mut Peer<T>> {
-        let peers = unsafe {
-            std::slice::from_raw_parts_mut(
-                (*self.inner).peers,
-                // This conversion should basically never fail.
-                // It may only fail if size_t and usize are of
-                // different size and the peerCount is very large,
-                // which is only possible on niche platforms.
-                (*self.inner).peerCount.try_into().unwrap(),
-            )
-        };
+        let peers =
+            unsafe { std::slice::from_raw_parts_mut((*self.inner).peers, (*self.inner).peerCount) };
 
         peers.iter_mut().map(|peer| Peer::new_mut(&mut *peer))
     }
@@ -206,34 +198,18 @@ impl<T> Host<T> {
     pub fn peers_mut_this_will_go_horribly_wrong_lmao(
         &self,
     ) -> impl Iterator<Item = &'_ mut Peer<T>> {
-        let peers = unsafe {
-            std::slice::from_raw_parts_mut(
-                (*self.inner).peers,
-                // This conversion should basically never fail.
-                // It may only fail if size_t and usize are of
-                // different size and the peerCount is very large,
-                // which is only possible on niche platforms.
-                (*self.inner).peerCount.try_into().unwrap(),
-            )
-        };
+        let peers =
+            unsafe { std::slice::from_raw_parts_mut((*self.inner).peers, (*self.inner).peerCount) };
 
         peers.iter_mut().map(|peer| Peer::new_mut(&mut *peer))
     }
 
     /// Returns an iterator over all peers connected to this `Host`.
     pub fn peers(&self) -> impl Iterator<Item = &'_ Peer<T>> {
-        let peers = unsafe {
-            std::slice::from_raw_parts(
-                (*self.inner).peers,
-                // This conversion should basically never fail.
-                // It may only fail if size_t and usize are of
-                // different size and the peerCount is very large,
-                // which is only possible on niche platforms.
-                (*self.inner).peerCount.try_into().unwrap(),
-            )
-        };
+        let peers =
+            unsafe { std::slice::from_raw_parts((*self.inner).peers, (*self.inner).peerCount) };
 
-        peers.iter().map(|peer| Peer::new(&*peer))
+        peers.iter().map(|peer| Peer::new(peer))
     }
 
     fn process_event(&'_ mut self, sys_event: ENetEvent) -> Option<Event<'_, T>> {

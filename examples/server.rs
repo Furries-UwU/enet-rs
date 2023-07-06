@@ -29,10 +29,7 @@ fn main() -> anyhow::Result<()> {
             match event.kind() {
                 &EventKind::Connect => println!("new connection!"),
                 &EventKind::Disconnect { .. } => println!("disconnect!"),
-                &EventKind::Receive {
-                    ref channel_id,
-                    ref packet,
-                } => println!(
+                EventKind::Receive { channel_id, packet } => println!(
                     "got packet on channel {}, content: '{}'",
                     channel_id,
                     std::str::from_utf8(packet.data()).unwrap()
