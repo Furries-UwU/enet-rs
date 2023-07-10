@@ -49,9 +49,9 @@ impl PacketMode {
         match self {
             PacketMode::UnreliableSequenced => 0,
             PacketMode::UnreliableUnsequenced => {
-                _ENetPacketFlag_ENET_PACKET_FLAG_UNSEQUENCED as u32
+                _ENetPacketFlag_ENET_PACKET_FLAG_UNSEQUENCED
             }
-            PacketMode::ReliableSequenced => _ENetPacketFlag_ENET_PACKET_FLAG_RELIABLE as u32,
+            PacketMode::ReliableSequenced => _ENetPacketFlag_ENET_PACKET_FLAG_RELIABLE,
         }
     }
 }
@@ -65,7 +65,7 @@ impl Packet {
             enet_packet_create(
                 data.as_ptr() as *const _,
                 data.len(),
-                mode.to_sys_flags() | _ENetPacketFlag_ENET_PACKET_FLAG_NO_ALLOCATE as u32,
+                mode.to_sys_flags() | _ENetPacketFlag_ENET_PACKET_FLAG_NO_ALLOCATE,
             )
         };
 
