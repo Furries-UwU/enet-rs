@@ -48,9 +48,7 @@ impl PacketMode {
     fn to_sys_flags(self) -> u32 {
         match self {
             PacketMode::UnreliableSequenced => 0,
-            PacketMode::UnreliableUnsequenced => {
-                _ENetPacketFlag_ENET_PACKET_FLAG_UNSEQUENCED
-            }
+            PacketMode::UnreliableUnsequenced => _ENetPacketFlag_ENET_PACKET_FLAG_UNSEQUENCED,
             PacketMode::ReliableSequenced => _ENetPacketFlag_ENET_PACKET_FLAG_RELIABLE,
         }
     }
